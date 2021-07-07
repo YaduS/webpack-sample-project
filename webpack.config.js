@@ -1,5 +1,7 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
 // below package was deprecated:
 // const ExtractTextPlugin = require('extract-text-webpack-plugin');
 // const extractPlugin = new ExtractTextPlugin({
@@ -13,7 +15,8 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
-    publicPath: '/dist',
+    // publicPath: '/dist',
+    clean: true, // to clean dist before build
   },
   module: {
     rules: [
@@ -35,7 +38,29 @@ module.exports = {
         //   use: ['css-loader', 'sass-loader'],
         // }),
       },
+      {
+        test: /\.html$/,
+        use: ['html-loader'],
+      },
+      {
+        test: /\.(jpg|png)$/,
+        use: [
+          {
+            loader: 'file-loader', // webpack 5 prefers "asset/resource" instead => https://webpack.js.org/guides/asset-modules/
+            options: {
+              name: '[name].[ext]', // this doesnt seem to change the image names in the index.html, and also generates a hashed png which does not load properly.
+              outputPath: 'img/',
+              publicPath: 'img/',
+            },
+          },
+        ],
+      },
     ],
   },
-  plugins: [new MiniCssExtractPlugin()],
+  plugins: [
+    new MiniCssExtractPlugin(),
+    new HtmlWebpackPlugin({
+      template: 'src/index.html',
+    }),
+  ],
 };
